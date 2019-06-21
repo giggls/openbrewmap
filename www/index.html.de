@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Open Brewery Map</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="leaflet@1.4.0/leaflet.css" />
+    <link rel="stylesheet" href="sidebar-v2/css/leaflet-sidebar.css" />
+    <link rel="stylesheet" href="geocoder/Control.Geocoder.css" />
+    <link rel="stylesheet" href="brewmap.css" />
+</head>
+<body>
+    <div id="sidebar" class="sidebar collapsed">
+        <!-- Nav tabs -->
+        <div class="sidebar-tabs">
+            <ul role="tablist">
+                <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+                <li><a href="#info" role="tab"><i class="fa fa-map-marker"></i></a></li>
+                <li><a href="#bugs" role="tab"><i class="fa fa-bug"></i></a></li>
+            </ul>
+
+            <ul role="tablist">
+                <li class="flags"><a href="javascript:openURL('de');"><img src="lang/de.png" title="deutsch"></a></li>
+                <li class="flags"><a href="javascript:openURL('en');"><img src="lang/en.png" title="english"></a></li>
+                <li><a href="#about" role="tab"><i class="fa fa-info"></i></a></li>
+            </ul>
+        </div>
+
+        <!-- Tab panes -->
+        <div class="sidebar-content">
+            <div class="sidebar-pane" id="home">
+                <h1 class="sidebar-header">
+                    Open Brewery Map
+                    <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <div class="legend-content">
+                <p>Eine <a href="http://osm.org" target="_blank" >Openstreetmap</a>
+                basierte Weltkarte der Brauereien.</p>
+
+                <h2>Legende:</h2>
+                <h3>Brauereitypen:</h3>
+		<p>
+                <label class="switch"><input type="checkbox" id="micro" checked><span class="slider round"></span></label>&nbsp;<img src="markers/l_micro.svg"> Hausbrauerei<br />
+                <label class="switch"><input type="checkbox" id="craft" checked><span class="slider round"></span></label>&nbsp;<img src="markers/l_craft.svg"> Brauerei<br />
+                <label class="switch"><input type="checkbox" id="industrial" checked><span class="slider round"></span></label>&nbsp;<img src="markers/l_industrial.svg"> Großbrauerei<br />
+                </p>
+		</div>
+            </div>
+
+            <div class="sidebar-pane" id="info">
+                <h1 class="sidebar-header"><div id="cs_cat"><img src="markers/l_craft.svg"> </div><span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                <div id="info content"></div>
+            </div>
+
+            <div class="sidebar-pane" id="bugs">
+                <h1 class="sidebar-header"> Bugs<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                <div id="bugs content"></div>
+            </div>
+
+            <div class="sidebar-pane" id="about">
+                <h1 class="sidebar-header">Über Open Brewery Map<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                <div id="about content">
+                <p>
+                <b>Open Brewery Map</b> ist ein
+                <a href="https://de.wikipedia.org/wiki/Free/Libre_Open_Source_Software" target="_blank">FOSS</a>
+                Projekt von
+                <a href="https://wiki.openstreetmap.org/wiki/User:Giggls" target="_blank">Sven
+                Geggus</a> basierend auf Daten aus
+                <a href="http://osm.org" target="_blank">Openstreetmap</a>.</p>
+
+                <p>
+		Der Quellcode des <a href="https://github.com/giggls/openbrewmap" target="_blank">Web-frontends</a>
+		und <a href="https://github.com/giggls/osmpoidb" target="_blank">Datenbank backends</a>
+		ist auf GitHub verfügbar.
+                </p>
+                <p>
+		Die verwendeten Daten werden ausschließlich aus Openstreetmap
+		extrahiert und stündlich aktualisiert.
+                </p>
+		<p>
+		Informationen zum Tagging von Brauereien findet man im <a href="https://wiki.openstreetmap.org/wiki/DE:Brauerei"  target="_blank">Openstreetmap
+		Wiki</a>.
+		</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="map" class="sidebar-map"></div>
+
+    <!-- define application language of this file here -->
+    <script type="text/javascript">
+      var lang= "de";    
+    </script>
+    <script src="site-feature.js"></script>
+    <script src="l10n/de.js"></script>
+    <script src="leaflet@1.4.0/leaflet.js"></script>
+    <script src="sidebar-v2/js/leaflet-sidebar.js"></script>
+    <script src="leaflet-plugins/leaflet-hash.js"></script>
+    <script src="leaflet-plugins/leaflet.uGeoJSON.js"></script>
+    <script src="geocoder/Control.Geocoder.js"></script>
+    <script src="address-formatter@2.0.5.js"></script>
+    <script src="brewmap.js"></script>
+</body>
+</html>
