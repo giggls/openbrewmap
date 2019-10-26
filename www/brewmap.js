@@ -1,4 +1,4 @@
-/* Open campsite Map 
+/* Open Brewery Map 
 
 (c) 2019 Sven Geggus <sven-osm@geggus.net>
 
@@ -77,8 +77,7 @@ var LeafIcon = L.Icon.extend({
 });
 
 // Setup associative arrays which contains all custom icons we have
-var public_icons = new Array();
-var private_icons = new Array();
+var icons = new Array();
 var categories=["micro","craft","industrial"];
 
 var cat_color = { "craft": "#225500",
@@ -89,34 +88,20 @@ var cat_color = { "craft": "#225500",
 // iterate over the names from geoJSON which are used as a reference to the
 // corresponding icon instances
 categories.forEach(function(entry) {
-  public_icons[entry] = new LeafIcon({iconUrl: 'markers/m_'+entry+'.png'});
-  private_icons[entry] = new LeafIcon({iconUrl: 'markers/m_private_'+entry+'.png'});
+  icons[entry] = new LeafIcon({iconUrl: 'markers/m_'+entry+'.png'});
 });
 
 var gjson = L.uGeoJSONLayer({endpoint: "/getbreweries", usebbox:true, minzoom:10 }, {
   // called when drawing point features
   pointToLayer: function (featureData, latlng) {
     // standard icon is fallback
-    var icon = public_icons['standard'];
+    var icon = icons['standard'];
 
     if (categories.indexOf(featureData.properties["category"]) >= 0) {
-      icon = public_icons[featureData.properties["category"]];
-      if ('access' in featureData.properties) {
-        if (private_values.indexOf(featureData.properties['access']) >= 0) {
-          icon = private_icons[featureData.properties["category"]];
-          if (!(document.getElementById('private_'+featureData.properties["category"]).checked)) {
-            return;
-          };
-        } else {
-          if (!(document.getElementById(featureData.properties["category"]).checked)) {
-            return;
-          };
-        };
-      } else {
+      icon = icons[featureData.properties["category"]];
         if (!(document.getElementById(featureData.properties["category"]).checked)) {
           return;
         };
-      };
     };
     return L.marker(latlng, {icon: icon});
   },
@@ -132,29 +117,14 @@ function updateSidebars(featureData) {
      f2html(featureData);
       f2bugInfo(featureData);
       var cat;
-      var private = false;
-      if ('access' in featureData.properties) {
-        if (private_values.indexOf(featureData.properties['access']) >= 0) {
-          private = true;
-        };
-      };
       if (categories.indexOf(featureData.properties["category"]) >= 0) {
         cat=featureData.properties["category"];
       } else {
         cat="standard";
       }
-      if (private) {
-        dynsheet.innerHTML = ".sidebar-header, .sidebar-tabs > ul > li.active {background-color: "+cat_color['private']+";}";
-        
-      } else {
-        dynsheet.innerHTML = ".sidebar-header, .sidebar-tabs > ul > li.active {background-color: "+cat_color[cat]+";}";
-      };
+      dynsheet.innerHTML = ".sidebar-header, .sidebar-tabs > ul > li.active {background-color: "+cat_color[cat]+";}";
       var html;
-      if (private) {
-        html = '<img src=\"markers/l_private_'+ cat + '.svg\"> ' + l10n[cat];
-      } else {
-        html = '<img src=\"markers/l_'+ cat + '.svg\"> ' + l10n[cat];
-      };
+      html = '<img src=\"markers/l_'+ cat + '.svg\"> ' + l10n[cat];
       document.getElementById('cs_cat').innerHTML = html;
       sidebar.open('info');
 }
@@ -208,7 +178,7 @@ function CategoriesFromHash(hash) {
 
 /*
 
-fetch campsite data as given on URL bar and update sidebar accordingly 
+fetch brewery data as given on URL bar and update sidebar accordingly 
 
 
 */
