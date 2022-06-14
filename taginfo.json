@@ -1,0 +1,35 @@
+{
+    "data_format": 1,
+    "data_url": "https://raw.githubusercontent.com/giggls/openbrewmap/master/taginfo.json",
+    "project": {
+        "name": "OpenBreweryMap",
+        "description": "A global map of breweries based on data from Openstreetmap",
+        "project_url": "https://brewmap.openstreetmap.de/",
+        "icon_url": "https://brewmap.openstreetmap.de/favicon.ico",
+        "contact_name": "Sven Geggus",
+        "contact_email": "sven-osm@geggus.net"
+    },
+    "tags": [
+        {
+	  "key": "microbrewery",
+	  "value": "yes",
+	  "object_types": ["node","area"],
+	  "icon_url": "https://brewmap.openstreetmap.de/markers/l_micro.svg",
+	  "description": "Pub/restaurant with microbrewery."
+	},
+        {
+	  "key": "craft",
+	  "value": "brewery",
+	  "object_types": ["node","area"],
+	  "icon_url": "https://brewmap.openstreetmap.de/markers/l_craft.svg",
+	  "description": "A craft brewery."
+	},
+        {
+	  "key": "industrial",
+	  "value": "brewery",
+	  "object_types": ["node"],
+	  "icon_url": "https://brewmap.openstreetmap.de/markers/l_industrial.svg",
+	  "description": "An industrial brewery."
+	}
+    ]
+}
