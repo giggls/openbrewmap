@@ -16,6 +16,7 @@ import cgi
 import psycopg2
 import json
 import sys
+from urllib.parse import parse_qs
 
 dbconnstr="dbname=poi"
 
@@ -24,14 +25,14 @@ SELECT Jsonb_build_object('type', 'FeatureCollection', 'features',
               coalesce(json_agg(features.feature), '[]'::json))
 FROM   (
   SELECT
-  CASE WHEN (osm_type = 'node') THEN
+  CASE WHEN (osm_type != 'N') THEN
     Json_build_object('type', 'Feature',
-    'id', 'https://www.openstreetmap.org/node/' || osm_id,
+    'id', 'https://www.openstreetmap.org/' || CASE WHEN osm_type = 'W' THEN 'way/' ELSE 'relation/' END || osm_id,
     'geometry',St_asgeojson(St_centroid(geom)) :: json, 'properties',
     tags ::jsonb || Json_build_object('category', category) ::jsonb)
   ELSE
     Json_build_object('type', 'Feature',
-    'id', 'https://www.openstreetmap.org/' || osm_type || '/' || osm_id,
+    'id', 'https://www.openstreetmap.org/node/' || osm_id,
     'bbox', array[round(ST_XMin(geom)::numeric,7),round(ST_YMin(geom)::numeric,7),
                   round(ST_XMax(geom)::numeric,7),round(ST_YMax(geom)::numeric,7)],
     'geometry',St_asgeojson(St_centroid(geom)) :: json, 'properties',
@@ -45,7 +46,7 @@ FROM   (
 
 sql_where_bbox="geom && St_setsrid('BOX3D(%f %f, %f %f)' ::box3d, 4326)"
 
-sql_where_id="imposm_id = %s"
+sql_where_id="osm_id = %s AND osm_type = '%s'"
 
 empty_geojson = b'{"type": "FeatureCollection", "features": []}\n'
 
@@ -79,20 +80,6 @@ def bbox2flist(bbox):
     return([])
   return(coords)
 
-# imposm scheme for mapping osm_id to unique ids:
-# node: osm_id
-# ways: -1*osm_id
-# relations: (-1*osm_id)-1e7
-def gen_imposm_id(osm_id,osm_type):
-  if (osm_type == 'node'):
-    imposm_id=osm_id
-  else:
-    if (osm_type == 'way'):
-      imposm_id=-1*osm_id
-    else:
-       imposm_id=(-1*osm_id)-1e7
-  return(imposm_id)
-
 def application(environ, start_response):
   start_response('200 OK', [('Content-Type', 'application/json')])
   if not 'REQUEST_METHOD' in environ:
@@ -102,7 +89,7 @@ def application(environ, start_response):
   if environ['REQUEST_METHOD'] == 'GET':
     if not 'QUERY_STRING' in environ:
       return([empty_geojson])
-    parms = cgi.parse_qs(environ.get('QUERY_STRING', ''))
+    parms = parse_qs(environ.get('QUERY_STRING', ''))
     bbox = parms.get('bbox')
     osm_id = parms.get('osm_id')
     osm_type = parms.get('osm_type')
@@ -146,8 +133,7 @@ def application(environ, start_response):
     q = sql_where_bbox % (coords[0],coords[1],coords[2],coords[3])
     q = sql_query % q
   else:
-    imposm_id=gen_imposm_id(int(osm_id[0]),osm_type[0])
-    q = sql_where_id % imposm_id
+    q = sql_where_id % (osm_id[0],osm_type[0][0].upper())
     q = sql_query % q
   
   cur = conn.cursor()
