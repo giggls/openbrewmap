@@ -12,7 +12,6 @@
 # REQUEST_METHOD=GET QUERY_STRING="osm_id=102690110&osm_type=way" ./get-breweries.cgi |tail +5 |jq .
 #
 import wsgiref.handlers
-import cgi
 import psycopg2
 import json
 import sys
@@ -95,7 +94,7 @@ def application(environ, start_response):
     osm_type = parms.get('osm_type')
   else:
     environ['QUERY_STRING'] = ''
-    post = cgi.FieldStorage(
+    post = urllib.parse.parse_qsl(
         fp=environ['wsgi.input'],
         environ=environ,
         keep_blank_values=True
