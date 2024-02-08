@@ -4,7 +4,7 @@
 #
 # Small CGI/WSGI wrapper for BBOX -> JSON SQL query
 #
-# (c) 2019 Sven Geggus <sven-osm@geggus-net>
+# (c) 2019-2024 Sven Geggus <sven-osm@geggus-net>
 #
 #
 # test using the following commands:
@@ -16,6 +16,7 @@ import psycopg2
 import json
 import sys
 import urllib.parse
+import multipart
 
 dbconnstr="dbname=poi"
 
@@ -80,6 +81,23 @@ def bbox2flist(bbox):
   return(coords)
 
 def application(environ, start_response):
+
+  bbox = []
+  osm_id = []
+  osm_type = []
+  
+  # callbacks sets required variables
+  def on_field(field):
+    if (field.field_name == b'bbox'):
+      bbox.append(field.value.decode())
+    if (field.field_name == b'osm_id'):
+      osm_id.append(field.value.decode())
+    if (field.field_name == b'osm_type'):
+      osm_type.append(field.value.decode())
+
+  def on_file(file):
+    pass
+
   start_response('200 OK', [('Content-Type', 'application/json')])
   if not 'REQUEST_METHOD' in environ:
     return([empty_geojson])
@@ -94,15 +112,8 @@ def application(environ, start_response):
     osm_type = parms.get('osm_type')
   else:
     environ['QUERY_STRING'] = ''
-    post = urllib.parse.parse_qsl(
-        fp=environ['wsgi.input'],
-        environ=environ,
-        keep_blank_values=True
-    )
-    bbox = post.getlist("bbox")
-    osm_id = post.getlist("osm_id")
-    osm_type = post.getlist("osm_type")
-    
+    multipart.parse_form({'Content-Type': environ['CONTENT_TYPE']}, environ['wsgi.input'], on_field, on_file)
+
   if ((bbox is not None) and (bbox != [])):
     # validate floating point values in bbox
     coords=bbox2flist(bbox[0])
