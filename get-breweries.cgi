@@ -103,16 +103,19 @@ def application(environ, start_response):
     return([empty_geojson])
   if environ['REQUEST_METHOD'] not in ['GET', 'POST']:
     return([b'{}\n'])
+
   if environ['REQUEST_METHOD'] == 'GET':
     if not 'QUERY_STRING' in environ:
       return([empty_geojson])
     parms = urllib.parse.parse_qs(environ.get('QUERY_STRING', ''))
-    bbox = parms.get('bbox')
-    osm_id = parms.get('osm_id')
-    osm_type = parms.get('osm_type')
   else:
-    environ['QUERY_STRING'] = ''
-    multipart.parse_form({'Content-Type': environ['CONTENT_TYPE']}, environ['wsgi.input'], on_field, on_file)
+    content_length = int(environ.get('CONTENT_LENGTH', 0))
+    body = environ['wsgi.input'].read(content_length).decode('utf-8')
+    parms = urllib.parse.parse_qs(body)
+  
+  bbox = parms.get('bbox')
+  osm_id = parms.get('osm_id')
+  osm_type = parms.get('osm_type')
 
   if ((bbox is not None) and (bbox != [])):
     # validate floating point values in bbox
